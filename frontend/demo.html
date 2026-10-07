@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demo — Revenue360s</title>
+  <meta name="description" content="Click through a sample Revenue360s lead, from discovery to a booked meeting. No login." />
+  <link rel="canonical" href="https://revenue360s.com/demo" />
+  <link rel="icon" href="/static/landing/icons/mark.svg" type="image/svg+xml" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/landing.css" />
+</head>
+<body data-page="demo">
+  <a class="skip" href="#main">Skip to content</a>
+  <header data-nav></header>
+  <main id="main" class="section">
+    <div class="wrap">
+      <div class="kicker">Demo</div>
+      <h1>A sample lead. No customer data.</h1>
+      <div class="demo-stage" style="margin-top:22px">
+        <div class="demo-steps" id="demo-steps">
+          <button class="btn" type="button" data-step="1">Find lead</button>
+          <button class="btn ghost" type="button" data-step="2">Research</button>
+          <button class="btn ghost" type="button" data-step="3">Create outreach</button>
+          <button class="btn ghost" type="button" data-step="4">Follow-up</button>
+          <button class="btn ghost" type="button" data-step="5">Outcome</button>
+        </div>
+        <div class="mini" id="demo-panel"></div>
+      </div>
+      <p style="margin-top:16px"><a class="btn" href="/app" data-track="demo_cta_click">Create a workspace</a></p>
+    </div>
+  </main>
+  <footer data-footer></footer>
+  <script src="/static/js/landing-config.js"></script>
+  <script src="/static/js/landing-analytics.js"></script>
+  <script src="/static/js/landing.js"></script>
+  <script>
+    const steps = {
+      1: ["Find lead", "Acme Technologies", "Stage: new", "Source: demo form"],
+      2: ["Research", "Hiring sales roles", "Active site", "Recommended: personal note, not a blast"],
+      3: ["Outreach", "WhatsApp draft", "Uses the company brief", "First reply stays manual unless you allow AI"],
+      4: ["Follow-up", "Day 1 email", "Day 3 WhatsApp", "Stops on reply or STOP"],
+      5: ["Outcome", "Reply recorded", "Sequence stopped", "Stage: replied. Sample only."]
+    };
+    const panel = document.querySelector("#demo-panel");
+    function show(n) {
+      const [title, a, b, c] = steps[n];
+      panel.innerHTML = `<h2>${title}</h2><div class="rowline"><span>${a}</span></div><div class="rowline"><span>${b}</span></div><div class="rowline"><span>${c}</span></div>`;
+      document.querySelectorAll("#demo-steps button").forEach((button) => button.classList.toggle("ghost", button.dataset.step !== String(n)));
+      if (window.R360Analytics) window.R360Analytics.trackEvent(n === "1" ? "demo_start" : n === "5" ? "demo_complete" : "demo_step_" + n, { section: "demo" });
+    }
+    document.querySelectorAll("#demo-steps button").forEach((button) => button.onclick = () => show(button.dataset.step));
+    if (window.R360Analytics) window.R360Analytics.trackEvent("demo_view", { section: "demo" });
+    show("1");
+  </script>
+</body>
+</html>

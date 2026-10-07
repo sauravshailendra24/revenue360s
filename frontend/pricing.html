@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pricing — Revenue360s</title>
+  <meta name="description" content="Revenue360s plans load from confirmed sellable prices." />
+  <link rel="canonical" href="https://revenue360s.com/pricing" />
+  <link rel="icon" href="/static/landing/icons/mark.svg" type="image/svg+xml" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/landing.css" />
+</head>
+<body data-page="pricing">
+  <header data-nav></header>
+  <main class="section" data-view="pricing_view" data-section="pricing">
+    <div class="wrap">
+      <h1>What it costs is what the catalog confirms.</h1>
+      <p class="lede">Starter, Growth, and Pro match admin tiers. Amounts appear only from /api/public/plans.</p>
+      <div class="pricing-grid" data-plans style="margin-top:22px">
+        <article class="plan"><h3>Starter</h3><div class="price">Catalog</div><ul><li>Follow-up</li><li>Email, WhatsApp, SMS</li></ul><a class="btn ghost" href="/app" data-track="pricing_cta_click" data-track-props='{"plan":"starter"}'>Start</a></article>
+        <article class="plan featured"><h3>Growth</h3><div class="price">Catalog</div><ul><li>Campaigns</li><li>Sequences</li><li>Search</li></ul><a class="btn" href="/app" data-track="pricing_cta_click" data-track-props='{"plan":"growth"}'>Start</a></article>
+        <article class="plan"><h3>Pro</h3><div class="price">Catalog</div><ul><li>Higher quota</li><li>More accounts</li></ul><a class="btn ghost" href="/app" data-track="pricing_cta_click" data-track-props='{"plan":"pro"}'>Start</a></article>
+      </div>
+      <article class="custom-plan" style="margin-top:12px"><h3>Custom</h3><p>A different workflow or integration.</p><a class="btn ghost" href="/contact" data-track="custom_solution_click">Talk to sales</a></article>
+    </div>
+  </main>
+  <footer data-footer></footer>
+  <script src="/static/js/landing-config.js"></script>
+  <script src="/static/js/landing-analytics.js"></script>
+  <script src="/static/js/landing.js"></script>
+</body>
+</html>

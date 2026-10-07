@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact — Revenue360s</title>
+  <meta name="description" content="Talk to Revenue360s about a workspace or a custom workflow." />
+  <link rel="canonical" href="https://revenue360s.com/contact" />
+  <link rel="icon" href="/static/landing/icons/mark.svg" type="image/svg+xml" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/landing.css" />
+</head>
+<body data-page="contact">
+  <header data-nav></header>
+  <main class="section">
+    <div class="wrap contact-grid">
+      <div>
+        <h1>Tell us what you are trying to accomplish.</h1>
+        <div class="alt-contact">
+          <a data-contact="email" data-track="email_click" data-track-props='{"location":"contact"}'>Email</a>
+          <a data-contact="phone" data-track="phone_click" data-track-props='{"location":"contact"}'>Phone</a>
+          <a data-contact="whatsapp" data-track="whatsapp_click" data-track-props='{"location":"contact"}'>WhatsApp</a>
+        </div>
+      </div>
+      <form id="contact-form" class="stack">
+        <label>Name<input name="name" required autocomplete="name" /></label>
+        <label>Company<input name="company" autocomplete="organization" /></label>
+        <label>Email<input name="email" type="email" required autocomplete="email" /></label>
+        <label>Phone<input name="phone" autocomplete="tel" /></label>
+        <label>What do you need?<textarea name="message" required></textarea></label>
+        <button class="btn" type="submit">Talk to Revenue360s</button>
+        <p class="status" id="form-status" role="status"></p>
+      </form>
+    </div>
+  </main>
+  <footer data-footer></footer>
+  <script src="/static/js/landing-config.js"></script>
+  <script src="/static/js/landing-analytics.js"></script>
+  <script src="/static/js/landing.js"></script>
+</body>
+</html>

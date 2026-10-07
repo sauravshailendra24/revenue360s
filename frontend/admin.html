@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Revenue360s Admin</title>
+  <style>
+    :root { color-scheme: dark; --bg:#10140f; --panel:#181d16; --line:#2c3428; --text:#e7eee4; --muted:#9aa394; --accent:#d7ff4a; --danger:#ff8d7a; }
+    * { box-sizing: border-box; }
+    body { margin:0; font:15px/1.45 "Segoe UI", sans-serif; background:var(--bg); color:var(--text); }
+    header { display:flex; justify-content:space-between; gap:16px; align-items:center; padding:16px 22px; border-bottom:1px solid var(--line); }
+    h1, h2, h3 { margin:0 0 8px; }
+    h1 { font-size:18px; letter-spacing:.04em; }
+    nav { display:flex; flex-wrap:wrap; gap:8px; }
+    button, .ghost { background:#242b20; color:var(--text); border:1px solid var(--line); border-radius:6px; padding:8px 10px; cursor:pointer; }
+    button.primary { background:var(--accent); color:#17200c; border-color:transparent; font-weight:650; }
+    button.danger { color:var(--danger); }
+    main { padding:22px; max-width:1100px; margin:0 auto; }
+    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .card, table, form, .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; }
+    .card, .panel { padding:14px; }
+    .card b { display:block; font-size:22px; margin-top:4px; }
+    table { width:100%; border-collapse:collapse; margin-top:14px; }
+    th, td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+    th { color:var(--muted); font-size:12px; text-transform:uppercase; }
+    input, select { background:#10140f; color:var(--text); border:1px solid var(--line); border-radius:6px; padding:8px; width:100%; }
+    form { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:12px; margin-top:14px; }
+    label { display:flex; flex-direction:column; gap:4px; color:var(--muted); font-size:12px; }
+    .span2 { grid-column:span 2; }
+    .muted { color:var(--muted); }
+    .error { color:var(--danger); }
+    .hidden { display:none; }
+    .row { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid var(--line); }
+    .login { max-width:420px; margin:48px auto; }
+    @media (max-width:800px) { .grid, form { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>REVENUE360S ADMIN</h1>
+    <nav id="nav" class="hidden"></nav>
+  </header>
+  <main>
+    <section id="login" class="card login">
+      <h2>Admin</h2>
+      <p class="muted">Same Revenue360s login. The server admits only an admin role whose email matches R360_ADMIN_EMAIL.</p>
+      <form id="login-form">
+        <label class="span2">Email<input id="email" type="email" autocomplete="username" required /></label>
+        <label class="span2">Password<input id="password" type="password" autocomplete="current-password" required /></label>
+        <button class="primary" type="submit">Sign in</button>
+      </form>
+      <p id="login-error" class="error"></p>
+    </section>
+    <p id="message" class="error"></p>
+    <section id="overview" class="hidden"><div class="grid" id="stats"></div></section>
+    <section id="payments" class="hidden">
+      <form id="search-payments">
+        <label class="span2">Search<input id="pay-q" placeholder="Email, name, pay_, plink_" /></label>
+        <label>Status<select id="pay-status"><option value="">Any</option><option>pending</option><option>received</option><option>verified</option><option>failed</option><option>refunded</option></select></label>
+        <button class="primary" type="submit">Search</button>
+      </form>
+      <table><thead><tr><th>Customer</th><th>Service</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody id="pay-rows"></tbody></table>
+      <div id="payment" class="panel hidden"></div>
+      <form id="manual">
+        <label>Customer email<input id="manual-email" type="email" required /></label>
+        <label>Service<input id="manual-service" value="seo" required /></label>
+        <label>Tier<select id="manual-tier"><option>starter</option><option selected>growth</option><option>pro</option></select></label>
+        <label>Mode<input id="manual-mode" value="standard" /></label>
+        <label>Method<input id="manual-method" value="upi" /></label>
+        <label>Razorpay payment id<input id="manual-payid" placeholder="optional" /></label>
+        <label class="span2">Notes<input id="manual-notes" placeholder="Bank reference or Razorpay email" /></label>
+        <button class="primary" type="submit">Create manual payment</button>
+      </form>
+    </section>
+    <section id="customers" class="hidden">
+      <form id="search-customers"><label class="span2">Search<input id="cust-q" placeholder="Email or company" /></label><button class="primary">Search</button></form>
+      <table><thead><tr><th>Customer</th><th>Company</th><th>Verified</th><th></th></tr></thead><tbody id="cust-rows"></tbody></table>
+      <div id="customer" class="panel hidden"></div>
+    </section>
+    <section id="services" class="hidden">
+      <div id="service-list"></div>
+      <form id="price-form">
+        <label>Service<input id="price-service" required /></label>
+        <label>Tier<select id="price-tier"><option>starter</option><option>growth</option><option>pro</option></select></label>
+        <label>Mode<input id="price-mode" value="standard" /></label>
+        <label>Price INR<input id="price-amount" type="number" min="1" step="0.01" required /></label>
+        <label>Monthly quota<input id="price-quota" type="number" min="0" value="0" /></label>
+        <button class="primary" type="submit">Confirm production price</button>
+      </form>
+    </section>
+    <section id="links" class="hidden"><div id="link-list"></div></section>
+    <section id="audit" class="hidden"><table><thead><tr><th>When</th><th>Action</th><th>Target</th><th>IP</th></tr></thead><tbody id="audit-rows"></tbody></table></section>
+    <section id="health" class="hidden"><div id="health-body" class="panel"></div></section>
+    <section id="marketing" class="hidden">
+      <div class="grid" id="m-stats"></div>
+      <div id="m-funnel" class="panel"></div>
+      <table><thead><tr><th>Source</th><th>Visitors</th></tr></thead><tbody id="m-traffic"></tbody></table>
+      <table><thead><tr><th>When</th><th>Visitor</th><th>Event</th><th>Page</th><th>UTM</th><th>Version</th></tr></thead><tbody id="m-events"></tbody></table>
+    </section>
+  </main>
+  <script>
+    const tabs = ["overview", "payments", "customers", "services", "links", "audit", "health", "marketing"];
+    const labels = { overview: "Dashboard", payments: "Payments", customers: "Customers", services: "Services", links: "Payment Links", audit: "Audit", health: "Health", marketing: "Marketing" };
+    let token = sessionStorage.getItem("r360_admin_token") || "";
+    const message = document.querySelector("#message");
+    const inr = (value) => "₹" + Number(value || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    function esc(value) {
+        return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[ch]));
+    }
+    function headers() { return { Authorization: "Bearer " + token, "Content-Type": "application/json" }; }
+    async function api(path, options = {}) {
+      const response = await fetch(path, { ...options, headers: { ...headers(), ...(options.headers || {}) } });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : response.statusText);
+      return data;
+    }
+    function show(tab) {
+      document.querySelector("#login").classList.add("hidden");
+      for (const name of tabs) document.querySelector("#" + name).classList.toggle("hidden", name !== tab);
+    }
+    function nav() {
+      document.querySelector("#nav").classList.remove("hidden");
+      document.querySelector("#nav").innerHTML = tabs.map(tab => `<button data-tab="${tab}">${labels[tab]}</button>`).join("") + `<button id="logout" class="danger">Sign out</button>`;
+      document.querySelectorAll("#nav [data-tab]").forEach(button => button.onclick = () => openTab(button.dataset.tab));
+      document.querySelector("#logout").onclick = () => { sessionStorage.removeItem("r360_admin_token"); token = ""; location.reload(); };
+    }
+    async function openTab(tab) {
+      show(tab);
+      message.textContent = "";
+      if (tab === "overview") await loadOverview();
+      if (tab === "payments") await loadPayments();
+      if (tab === "services" || tab === "links") await loadPlans(tab);
+      if (tab === "audit") await loadAudit();
+      if (tab === "health") await loadHealth();
+      if (tab === "marketing") await loadMarketing();
+    }
+    document.querySelector("#login-form").onsubmit = async (event) => {
+      event.preventDefault();
+      document.querySelector("#login-error").textContent = "";
+      try {
+        const session = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email.value, password: password.value }) }).then(async response => {
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(data.detail || "Sign-in failed");
+          return data;
+        });
+        token = session.token;
+        sessionStorage.setItem("r360_admin_token", token);
+        await api("/api/admin/overview");
+        nav();
+        openTab("overview");
+      } catch (error) {
+        sessionStorage.removeItem("r360_admin_token");
+        document.querySelector("#login-error").textContent = error.message;
+      }
+    };
+    async function loadOverview() {
+      const data = await api("/api/admin/overview");
+      document.querySelector("#stats").innerHTML = [
+        ["Customers", data.customers], ["Active subscriptions", data.active_subscriptions],
+        ["Pending payments", data.pending_payments], ["This month", inr(data.month_revenue)]
+      ].map(([label, value]) => `<div class="card"><span class="muted">${esc(label)}</span><b>${esc(value)}</b></div>`).join("");
+    }
+    function quoteBlock(payment) {
+      const quote = payment.quote || {};
+      const items = payment.items || [];
+      return items.map(item => `<div class="row"><span>${esc(item.service_code)} · ${esc(item.tier)} · ${esc(item.mode)}</span><span>${esc(inr(item.list_price))} list · ${esc(inr(item.discount_amount))} off · ${esc(inr(item.net_amount))} net</span></div>`).join("")
+        + `<div class="row"><span>Subtotal</span><b>${esc(inr(quote.subtotal ?? payment.amount))}</b></div>`
+        + `<div class="row"><span>Bundle discount</span><b>${esc(inr(quote.discount_amount ?? payment.discount_amount))}</b></div>`
+        + `<div class="row"><span>Platform fee</span><b>${esc(inr(quote.platform_fee ?? payment.platform_fee))}</b></div>`
+        + `<div class="row"><span>GST 18%</span><b>${esc(inr(quote.gst_amount ?? payment.gst_amount))}</b></div>`
+        + `<div class="row"><span>Total</span><b>${esc(inr(quote.total_amount ?? payment.total_amount))}</b></div>`
+        + `<p class="muted">Razorpay link ${esc(payment.razorpay_payment_link_id || "not attached")} · payment ${esc(payment.razorpay_payment_id || "not entered")} · ${esc(payment.status)}</p>`;
+    }
+    async function openPayment(id) {
+      const payment = await api("/api/admin/payments/" + id);
+      const box = document.querySelector("#payment");
+      box.classList.remove("hidden");
+      box.innerHTML = `<h2>${esc(payment.customer_email)}</h2>${quoteBlock(payment)}`
+        + (payment.status === "verified" ? "" : `<form id="verify"><label class="span2">Razorpay payment id<input id="verify-pay" placeholder="pay_... optional for bank/UPI" /></label><button class="primary" type="submit">Verify & activate</button></form>`);
+      const form = document.querySelector("#verify");
+      if (form) form.onsubmit = async (event) => {
+        event.preventDefault();
+        try { await api(`/api/admin/payments/${id}/verify-activate`, { method: "POST", body: JSON.stringify({ razorpay_payment_id: document.querySelector("#verify-pay").value }) }); openPayment(id); loadPayments(); }
+        catch (error) { message.textContent = error.message; }
+      };
+    }
+    async function loadPayments() {
+      const params = new URLSearchParams({ q: document.querySelector("#pay-q").value, status: document.querySelector("#pay-status").value });
+      const rows = await api("/api/admin/payments?" + params);
+      document.querySelector("#pay-rows").innerHTML = rows.map(row => `<tr><td>${esc(row.customer_email)}<br><span class="muted">${esc(row.full_name || "")}</span></td><td>${esc(row.service_code)} ${esc(row.tier)}</td><td>${esc(inr(row.total_amount))}</td><td>${esc(row.status)}</td><td><button data-id="${esc(row.id)}" class="open-pay">Open</button></td></tr>`).join("");
+      document.querySelectorAll(".open-pay").forEach(button => button.onclick = () => openPayment(button.dataset.id).catch(error => message.textContent = error.message));
+    }
+    document.querySelector("#search-payments").onsubmit = (event) => { event.preventDefault(); loadPayments().catch(error => message.textContent = error.message); };
+    document.querySelector("#manual").onsubmit = async (event) => {
+      event.preventDefault();
+      try {
+        const created = await api("/api/admin/payments", { method: "POST", body: JSON.stringify({ customer_email: document.querySelector("#manual-email").value, payment_method: document.querySelector("#manual-method").value, razorpay_payment_id: document.querySelector("#manual-payid").value, notes: document.querySelector("#manual-notes").value, items: [{ service_code: document.querySelector("#manual-service").value, tier: document.querySelector("#manual-tier").value, mode: document.querySelector("#manual-mode").value }] }) });
+        message.textContent = "Manual payment recorded as received. Open it and verify to grant access.";
+        await loadPayments();
+        openPayment(created.id);
+      } catch (error) { message.textContent = error.message; }
+    };
+    function accountLine(account) {
+      return `<div class="row"><span>${esc(account.platform)}</span><span>${esc(account.identifier || account.name || "—")} · ${esc(account.status || "not connected")} · ${account.has_credentials ? "credentials present" : "no credentials"}</span></div>`;
+    }
+    async function openCustomer(id) {
+      const data = await api("/api/admin/customers/" + id);
+      const expected = ["email", "whatsapp", "sms", "instagram", "facebook", "meta_ads"];
+      const present = new Set(data.accounts.map(account => account.platform));
+      const missing = expected.filter(platform => !present.has(platform)).map(platform => ({ platform, status: "not connected", has_credentials: false }));
+      const box = document.querySelector("#customer");
+      box.classList.remove("hidden");
+      box.innerHTML = `<h2>${esc(data.company.company_name || data.user.full_name)}</h2><p>${esc(data.user.email)} · ${data.user.is_verified ? "verified" : "unverified"}</p>
+        <p class="muted">Workspace ${esc(data.user.workspace_id)}<br>Created ${esc(data.user.created_at)}</p>
+        <h3>Services</h3>
+        ${data.entitlements.map(item => `<div class="row"><span>${esc(item.service_code)} · ${esc(item.tier)} · ${esc(item.mode)}</span><span><b>${esc(item.status)}</b> until ${esc(item.expires_at)}</span></div>
+          <p><button class="extend" data-service="${esc(item.service_code)}" data-days="30">+30</button> <button class="extend" data-service="${esc(item.service_code)}" data-days="60">+60</button> <button class="extend" data-service="${esc(item.service_code)}" data-days="90">+90</button> <button class="custom" data-service="${esc(item.service_code)}">Custom</button> <button class="danger suspend" data-service="${esc(item.service_code)}">Suspend</button></p>`).join("") || "<p class='muted'>No services.</p>"}
+        <h3>Grant service</h3>
+        <form id="grant"><label>Service<input id="grant-service" value="seo" /></label><label>Tier<select id="grant-tier"><option>starter</option><option selected>growth</option><option>pro</option></select></label><label>Mode<input id="grant-mode" value="standard" /></label><label>Days<input id="grant-days" type="number" value="30" /></label><label class="span2">Reason<input id="grant-reason" required /></label><button class="primary">Grant access</button></form>
+        <h3>Payments</h3>
+        ${data.payments.map(payment => `<div class="row"><span>${esc(payment.service_code)} ${esc(payment.tier)}</span><span>${esc(inr(payment.total_amount))} · ${esc(payment.status)}</span></div>`).join("")}
+        <h3>Connected accounts</h3>
+        ${data.accounts.map(accountLine).join("")}${missing.map(accountLine).join("")}`;
+      box.querySelectorAll(".extend").forEach(button => button.onclick = () => api(`/api/admin/customers/${id}/extend`, { method: "POST", body: JSON.stringify({ service_code: button.dataset.service, days: Number(button.dataset.days) }) }).then(() => openCustomer(id)));
+      box.querySelectorAll(".custom").forEach(button => button.onclick = () => {
+        const days = Number(prompt("Days to add", "14"));
+        if (days) api(`/api/admin/customers/${id}/extend`, { method: "POST", body: JSON.stringify({ service_code: button.dataset.service, days }) }).then(() => openCustomer(id));
+      });
+      box.querySelectorAll(".suspend").forEach(button => button.onclick = () => api(`/api/admin/customers/${id}/suspend`, { method: "POST", body: JSON.stringify({ service_code: button.dataset.service, status: "suspended" }) }).then(() => openCustomer(id)));
+      box.querySelector("#grant").onsubmit = async (event) => {
+        event.preventDefault();
+        await api(`/api/admin/customers/${id}/grant`, { method: "POST", body: JSON.stringify({ service_code: box.querySelector("#grant-service").value, tier: box.querySelector("#grant-tier").value, mode: box.querySelector("#grant-mode").value, days: Number(box.querySelector("#grant-days").value), reason: box.querySelector("#grant-reason").value }) });
+        openCustomer(id);
+      };
+    }
+    document.querySelector("#search-customers").onsubmit = async (event) => {
+      event.preventDefault();
+      const rows = await api("/api/admin/customers?q=" + encodeURIComponent(document.querySelector("#cust-q").value));
+      document.querySelector("#cust-rows").innerHTML = rows.map(row => `<tr><td>${esc(row.email)}<br><span class="muted">${esc(row.full_name || "")}</span></td><td>${esc(row.company_name || "")}</td><td>${row.is_verified ? "yes" : "no"}</td><td><button data-id="${esc(row.id)}" class="open-cust">Open</button></td></tr>`).join("");
+      document.querySelectorAll(".open-cust").forEach(button => button.onclick = () => openCustomer(button.dataset.id).catch(error => message.textContent = error.message));
+    };
+    async function loadPlans(tab) {
+      const plans = await api("/api/admin/plans");
+      if (tab === "services") {
+        document.querySelector("#service-list").innerHTML = `<table><thead><tr><th>Service</th><th>Tier</th><th>Price</th><th>Version</th><th>Sellable</th></tr></thead><tbody>`
+          + plans.map(plan => `<tr><td>${esc(plan.name)}<br><span class="muted">${esc(plan.service_code)} · ${esc(plan.mode)}</span></td><td>${esc(plan.tier)}</td><td>${esc(inr(plan.price))}</td><td>${esc(plan.price_version)}</td><td>${plan.sellable ? "yes" : plan.active ? "no link" : "draft"}</td></tr>`).join("")
+          + `</tbody></table><p class="muted">Only v3 and confirmed prices can be sold. Confirming a price marks it production and activates it.</p>`;
+      } else {
+        document.querySelector("#link-list").innerHTML = plans.map(plan => `<form class="link-form">
+          <strong>${esc(plan.name)} · ${esc(plan.tier)} · ${esc(plan.mode)}</strong>
+          <input type="hidden" name="service_code" value="${esc(plan.service_code)}" />
+          <input type="hidden" name="tier" value="${esc(plan.tier)}" />
+          <input type="hidden" name="mode" value="${esc(plan.mode)}" />
+          <label>Link id<input name="razorpay_payment_link_id" value="${esc(plan.razorpay_payment_link_id || "")}" /></label>
+          <label class="span2">Link URL<input name="razorpay_payment_link_url" value="${esc(plan.razorpay_payment_link_url || "")}" placeholder="https://rzp.io/..." /></label>
+          <button class="primary">Save link</button>
+        </form>`).join("");
+        document.querySelectorAll(".link-form").forEach(form => form.onsubmit = async (event) => {
+          event.preventDefault();
+          const body = Object.fromEntries(new FormData(form).entries());
+          try { await api("/api/admin/plans/link", { method: "POST", body: JSON.stringify(body) }); message.textContent = "Payment link saved."; }
+          catch (error) { message.textContent = error.message; }
+        });
+      }
+    }
+    document.querySelector("#price-form").onsubmit = async (event) => {
+      event.preventDefault();
+      try {
+        await api("/api/admin/plans/price", { method: "POST", body: JSON.stringify({ service_code: document.querySelector("#price-service").value, tier: document.querySelector("#price-tier").value, mode: document.querySelector("#price-mode").value, price: document.querySelector("#price-amount").value, quota_units: Number(document.querySelector("#price-quota").value), active: true }) });
+        message.textContent = "Price confirmed. It can now be sold once a Payment Link is attached.";
+        loadPlans("services");
+      } catch (error) { message.textContent = error.message; }
+    };
+    async function loadAudit() {
+      const rows = await api("/api/admin/audit");
+      document.querySelector("#audit-rows").innerHTML = rows.map(row => `<tr><td>${esc(row.created_at)}</td><td>${esc(row.action)}</td><td>${esc(row.target_type)} ${esc(row.target_id)}</td><td>${esc(row.ip_address || "")}</td></tr>`).join("");
+    }
+    async function loadHealth() {
+      const data = await api("/api/admin/health");
+      document.querySelector("#health-body").innerHTML = Object.entries(data).map(([key, value]) => `<div class="row"><span>${esc(key)}</span><b>${esc(value)}</b></div>`).join("")
+        + `<p class="muted">Webhook auto-activation stays off until R360_RAZORPAY_AUTO_ACTIVATE is explicitly enabled.</p>`;
+    }
+    async function loadMarketing() {
+      const [summary, funnel, traffic, events] = await Promise.all([
+        api("/api/admin/marketing/summary"),
+        api("/api/admin/marketing/funnel"),
+        api("/api/admin/marketing/traffic"),
+        api("/api/admin/marketing/events")
+      ]);
+      document.querySelector("#m-stats").innerHTML = Object.entries(summary).map(([label, value]) => `<div class="card"><span class="muted">${esc(label)}</span><b>${esc(value)}</b></div>`).join("");
+      document.querySelector("#m-funnel").innerHTML = (funnel.steps || []).map((step) => `<div class="row"><span>${esc(step.event)}</span><b>${esc(step.count)}</b></div>`).join("");
+      document.querySelector("#m-traffic").innerHTML = (traffic.sources || []).map((row) => `<tr><td>${esc(row.source)}</td><td>${esc(row.visitors)}</td></tr>`).join("");
+      document.querySelector("#m-events").innerHTML = (events.events || []).map((row) => `<tr><td>${esc(row.created_at)}</td><td>${esc(row.visitor_id)}</td><td>${esc(row.event_name)}</td><td>${esc(row.page)}</td><td>${esc(row.utm_source)}</td><td>${esc(row.landing_version)}</td></tr>`).join("");
+    }
+    if (token) api("/api/admin/overview").then(() => { nav(); openTab("overview"); }).catch(() => { sessionStorage.removeItem("r360_admin_token"); token = ""; });
+  </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Revenue360s</title>
+  <link rel="stylesheet" href="/static/css/main.css?v=20261007-public" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="auth" class="auth card">
+    <div class="brand">Revenue<span>360s</span></div>
+    <p class="sub">Follow up every lead on WhatsApp, email, and SMS from one workspace.</p>
+    <div class="row">
+      <button class="btn" id="tab-login" type="button">Log in</button>
+      <button class="btn ghost" id="tab-signup" type="button">Create account</button>
+      <button class="btn ghost" id="tab-reset" type="button">Forgot</button>
+    </div>
+    <form id="login-form">
+      <label>Email</label><input name="email" type="email" required autocomplete="username" />
+      <label>Password</label><input name="password" type="password" required autocomplete="current-password" />
+      <p><button class="btn" type="submit">Enter workspace</button></p>
+    </form>
+    <form id="signup-form" class="hide">
+      <label>Full name</label><input name="full_name" required autocomplete="name" />
+      <label>Email</label><input name="email" type="email" required autocomplete="email" />
+      <label>Password</label><input name="password" type="password" minlength="8" required autocomplete="new-password" />
+      <p><button class="btn" type="submit">Create account</button></p>
+    </form>
+    <form id="reset-form" class="hide">
+      <label>Account email</label><input name="email" type="email" autocomplete="email" />
+      <p><button class="btn" type="button" id="send-reset">Send reset code</button></p>
+      <label>Reset code</label><input name="code" inputmode="numeric" />
+      <label>New password</label><input name="password" type="password" minlength="8" autocomplete="new-password" />
+      <p><button class="btn" type="submit">Update password</button></p>
+    </form>
+    <p class="sub" id="auth-msg" role="status"></p>
+  </div>
+  <div id="app" class="app hide">
+    <aside class="side" id="side">
+      <div class="side-head">
+        <div class="brand">Revenue<span>360s</span></div>
+        <button class="icon-btn side-close" id="nav-close" type="button" aria-label="Close navigation">Close</button>
+      </div>
+      <nav class="nav" aria-label="Workspace"></nav>
+      <div class="side-foot">
+        <div class="badge" id="who"></div>
+        <button class="btn ghost" id="logout" type="button">Log out</button>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <button class="icon-btn" id="nav-toggle" type="button" aria-label="Open navigation" aria-controls="side" aria-expanded="false">Menu</button>
+        <div class="topbar-title" id="topbar-title">Today</div>
+        <div class="badge" id="mode-badge">Sandbox</div>
+      </header>
+      <main class="main" id="page"></main>
+    </div>
+  </div>
+  <div class="scrim" id="nav-scrim" hidden></div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="/static/js/app-bridge.js"></script>
+  <script src="/static/js/communication_channel.js?v=20261007-public"></script>
+  <script src="/static/js/engine.js?v=20261007-public"></script>
+  <script src="/static/js/leads.js?v=20261007-public"></script>
+  <script src="/static/js/social_media.js?v=20261007-public"></script>
+  <script src="/static/js/settings.js?v=20261007-public"></script>
+  <script src="/static/js/search_intelligence.js?v=20261007-public"></script>
+  <script src="/static/js/cloud.js?v=20261007-public"></script>
+  <script src="/static/js/main.js?v=20261007-public"></script>
+</body>
+</html>

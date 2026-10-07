@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+python-multipart
+requests
+requests-oauthlib
+pymysql
+python-dotenv
+cryptography
+boto3
+google-auth
+openpyxl
+pypdf
